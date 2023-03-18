@@ -1,0 +1,14 @@
+{
+    "name": "tall-kit/components",
+    "description": "A set of TALL components to increase your productivity.",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "TallKit\\Components\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require-dev": {
+        "orchestra/testbench": "dev-develop"
+    }
+}
