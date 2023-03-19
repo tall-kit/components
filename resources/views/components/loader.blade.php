@@ -5,10 +5,12 @@
      viewBox="0 0 24 24"
      {{$attributes->class([
         'animate-spin',
-        'h-3 w-3' => $size === 'xs',
-        'h-4 w-4' => $size === 'md',
-        'h-6 w-6' => $size === 'lg',
-        'h-8 w-8' => $size === 'xl',
+        match ($size) {
+            'xs' => 'h-3 w-3',
+            'md' => 'h-4 w-4',
+            'lg' => 'h-6 w-6',
+            'xl' => 'h-8 w-8',
+        },
     ])}}
 >
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
