@@ -10,5 +10,12 @@
     "minimum-stability": "dev",
     "require-dev": {
         "orchestra/testbench": "dev-develop"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TallKit\\Components\\TallKitServiceProvider"
+            ]
+        }
     }
 }
