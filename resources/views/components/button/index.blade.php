@@ -4,11 +4,7 @@
     'href' => null
 ])
 @php
-    $defaults = $href ? [
-        'href' => $href
-    ] : [
-        'type' => 'button'
-    ];
+    $defaults = $href ? ['href' => $href] : ['type' => 'button'];
     $tag = $href ? 'a' : 'button';
 @endphp
 <{{$tag}} {{$attributes

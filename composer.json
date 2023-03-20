@@ -14,7 +14,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "TallKit\\Components\\TallKitServiceProvider"
+                "TallKit\\Components\\TallKitComponentsServiceProvider"
             ]
         }
     }
