@@ -1,0 +1,30 @@
+{
+  "name": "@tall-kit/components",
+  "version": "0.0.1",
+  "description": "A set of Alpine Plugins for TALL components to increase your productivity.",
+  "main": "dist/module.cjs.js",
+  "module": "dist/module.esm.js",
+  "type": "module",
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "watch": "node ./scripts/build.js --watch",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tall-kit/components.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tall-kit/components/issues"
+  },
+  "homepage": "https://github.com/tall-kit/components#readme",
+  "devDependencies": {
+    "brotli-size": "^4.0.0",
+    "esbuild": "~0.16.17"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.2.6"
+  }
+}
