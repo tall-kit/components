@@ -1,5 +1,5 @@
-import components from '../resources/js/components/index.js'
+import plugins from '../resources/js/plugins/index.js'
 
 document.addEventListener('alpine:init', () => {
-    window.Alpine.plugin(components)
+    window.Alpine.plugin(plugins)
 })
