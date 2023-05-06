@@ -1,10 +1,16 @@
 {
-  "name": "@tall-kit/components",
-  "version": "0.0.1",
-  "description": "A set of Alpine Plugins for TALL components to increase your productivity.",
+  "name": "@tall-kit/plugins",
+  "version": "0.1.1",
+  "description": "A set of Alpine.js Plugins for TALL components to enhance your web development workflow and productivity.",
   "main": "dist/module.cjs.js",
   "module": "dist/module.esm.js",
   "type": "module",
+  "keywords": [
+    "tailwindcss",
+    "alpinejs",
+    "laravel",
+    "livewire"
+  ],
   "scripts": {
     "build": "node ./scripts/build.js",
     "watch": "node ./scripts/build.js --watch",
@@ -14,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/tall-kit/components.git"
   },
-  "author": "",
+  "author": "Nick Leibbrandt",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tall-kit/components/issues"

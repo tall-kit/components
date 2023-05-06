@@ -32,7 +32,7 @@ function bundleFile(file) {
                 platform: 'browser',
                 define: { CDN: 'true' },
             }).then(() => {
-                outputSize('components', `dist/${file.replace('.js', '.min.js')}`)
+                outputSize('plugins', `dist/${file.replace('.js', '.min.js')}`)
             })
 
         },

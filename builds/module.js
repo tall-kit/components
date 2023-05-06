@@ -1,7 +1,7 @@
-import floating from "../resources/js/components/floating.js";
-import popover from "../resources/js/components/popover.js";
-import tooltip from "../resources/js/components/tooltip.js";
-import toggle from "../resources/js/components/toggle.js";
+import floating from "../resources/js/plugins/floating.js";
+import popover from "../resources/js/plugins/popover.js";
+import tooltip from "../resources/js/plugins/tooltip.js";
+import toggle from "../resources/js/plugins/toggle.js";
 
 export {
     floating,

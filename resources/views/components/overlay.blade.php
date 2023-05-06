@@ -1,0 +1,1 @@
+<div {{$attributes->class('z-20 fixed inset-0 bg-slate-900/25 backdrop-blur-sm transition-opacity')}} x-cloak x-transition.opacity></div>
