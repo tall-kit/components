@@ -19,7 +19,13 @@
             'opacity-50': $toggle.isDisabled
         }"
         x-bind:class="$toggle.isChecked ? @js($activeColor) : 'bg-slate-300'"
-        {{$attributes->class([
+        @if($attributes->wire('model')->value)
+            x-data="{
+                value: @entangle($attributes->wire('model'))
+            }"
+            x-model="value"
+        @endif
+        {{$attributes->whereDoesntStartWith('wire:model')->class([
             'relative inline-flex flex-shrink-0 rounded-full transition border-transparent focus:outline-none focus:ring-offset-0 focus:ring-4',
             match ($color) {
                 'primary' => 'focus:ring-primary-light',

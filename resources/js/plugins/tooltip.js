@@ -24,7 +24,9 @@ export default function (Alpine) {
 }
 
 function handleRoot(el, expression, evaluate, cleanup, Alpine) {
-    let options = {};
+    let options = {
+        interactive: false
+    };
     if (expression) {
         Object.assign(options, evaluate(expression))
     }
@@ -40,6 +42,7 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
             return {
                 __delayInterval: null,
                 __durationInterval: null,
+                __interactive: options.interactive,
                 __showAndHandleDelay() {
                     this.__delayInterval = setTimeout(() => {
                         this.__show();
@@ -49,8 +52,38 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
                     clearInterval(this.__delayInterval);
                     this.__hide();
                 },
+                __closestEdge(mouse, targetEl) {
+                    // closestEdge(e.pageX - el_pos.left, e.pageY - el_pos.top, $(this).width(), $(this).height());
+                    const elClientRect = targetEl.getBoundingClientRect();
+
+                    const elLeftEdge = elClientRect.left;
+                    const elTopEdge = elClientRect.top;
+                    const elRightEdge = elClientRect.right;
+                    const elBottomEdge = elClientRect.bottom;
+
+                    const mouseX = mouse.pageX;
+                    const mouseY = mouse.pageY;
+
+                    const topEdgeDist = Math.abs(elTopEdge - mouseY);
+                    const bottomEdgeDist = Math.abs(elBottomEdge - mouseY);
+                    const leftEdgeDist = Math.abs(elLeftEdge - mouseX);
+                    const rightEdgeDist = Math.abs(elRightEdge - mouseX);
+
+                    const minDist = Math.min(topEdgeDist, bottomEdgeDist, leftEdgeDist, rightEdgeDist);
+
+                    switch (minDist) {
+                        case leftEdgeDist:
+                            return 'left';
+                        case rightEdgeDist:
+                            return 'right';
+                        case topEdgeDist:
+                            return 'top';
+                        case bottomEdgeDist:
+                            return 'bottom';
+                    }
+                }
             }
-        }
+        },
     });
 }
 
@@ -69,7 +102,21 @@ function handleTrigger(el, Alpine) {
         'x-on:focus'() {
             this.$data.__show();
         },
-        'x-on:mouseleave'() {
+        'x-on:mouseleave'(mouse) {
+            // handle interactive tooltip
+            if(this.$data.__interactive) {
+                // placement side of tooltip
+                const placementSide = this.$data.__placementSide;
+
+                // leaving side of mouse
+                const mouseLeavingSide = this.$data.__closestEdge(mouse, el);
+
+                // check if mouse leaving from trigger to tooltip
+                if(placementSide === mouseLeavingSide) {
+                    return;
+                }
+            }
+
             this.$data.__hideAndHandleDelay();
         },
         'x-on:blur'() {
@@ -90,5 +137,29 @@ function handleContent(el, Alpine) {
         'x-bind:id'() {
             return this.$id('tooltip-content')
         },
+        'x-on:mouseleave'(mouse) {
+            // handle interactive tooltip
+            if(this.$data.__interactive) {
+                // placement side of tooltip
+                const placementSide = this.$data.__placementSide;
+
+                // leaving side of mouse
+                const mouseLeavingSide = this.$data.__closestEdge(mouse, el);
+                const reversedDirection = {
+                    'bottom': 'top',
+                    'top': 'bottom',
+                    'left': 'right',
+                    'right': 'left',
+                }[placementSide] ?? null;
+                console.log(reversedDirection);
+                console.log(mouseLeavingSide);
+
+                // check if mouse leaving from tooltip to trigger
+                if(reversedDirection === mouseLeavingSide) {
+                    return;
+                }
+            }
+            this.$data.__hideAndHandleDelay()
+        }
     });
 }

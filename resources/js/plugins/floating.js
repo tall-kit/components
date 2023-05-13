@@ -15,7 +15,7 @@ export default function (Alpine) {
                 return $data.__isShown;
             },
             get placementSide() {
-                return $data.__placement ? $data.__placement.split('-')[0] : null;
+                return $data.__placementSide;
             },
             show() {
                 $data.__show();
@@ -94,6 +94,9 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
                 __referenceEl: null,
                 __floatingEl: null,
                 __arrowEl: null,
+                get __placementSide() {
+                    return this.__placement ? this.__placement.split('-')[0] : null;
+                },
                 __show() {
                     this.__isShown = true;
                     this.__update();
