@@ -6,6 +6,7 @@
     'flip' => true,
     'shift' => true,
     'overlay' => false,
+    'interactive' => false,
     'variant' => 'light'
 ])
 <div x-tooltip="{
@@ -13,6 +14,7 @@
         offset: {{$offset}},
         placement: @js($placement),
         flip: @js($flip),
+        interactive: @js($interactive),
         shift: @js($shift)
      }"
      {{$attributes}}
@@ -25,7 +27,7 @@
          x-transition
          x-tooltip:content
             @class([
-               'z-20 absolute left-0 top-0 px-3 px-2 shadow-lg rounded-md border',
+               'z-20 absolute left-0 top-0 p-2 shadow-lg rounded-md border',
                match ($variant) {
                    'primary' => 'bg-primary-dark text-white border-primary',
                    'secondary' => 'bg-secondary-darker text-secondary-lighter border-secondary-dark',

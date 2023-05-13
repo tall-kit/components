@@ -24,7 +24,7 @@
          x-transition
          x-popover:content
          @class([
-             'z-20 absolute left-0 top-0 px-3 px-2 shadow-lg rounded-md border focus:outline-none',
+             'z-20 absolute left-0 top-0 p-2 shadow-lg rounded-md border focus:outline-none',
              match ($variant) {
                  'primary' => 'bg-primary-dark text-white border-primary',
                  'secondary' => 'bg-secondary-darker text-secondary-lighter border-secondary-dark',
