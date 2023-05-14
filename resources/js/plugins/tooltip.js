@@ -53,7 +53,6 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
                     this.__hide();
                 },
                 __closestEdge(mouse, targetEl) {
-                    // closestEdge(e.pageX - el_pos.left, e.pageY - el_pos.top, $(this).width(), $(this).height());
                     const elClientRect = targetEl.getBoundingClientRect();
 
                     const elLeftEdge = elClientRect.left;
@@ -137,6 +136,9 @@ function handleContent(el, Alpine) {
         'x-bind:id'() {
             return this.$id('tooltip-content')
         },
+        'x-on:click.away'() {
+            this.$data.__interactive && this.$data.__hide()
+        },
         'x-on:mouseleave'(mouse) {
             // handle interactive tooltip
             if(this.$data.__interactive) {
@@ -151,8 +153,6 @@ function handleContent(el, Alpine) {
                     'left': 'right',
                     'right': 'left',
                 }[placementSide] ?? null;
-                console.log(reversedDirection);
-                console.log(mouseLeavingSide);
 
                 // check if mouse leaving from tooltip to trigger
                 if(reversedDirection === mouseLeavingSide) {
