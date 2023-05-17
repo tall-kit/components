@@ -24,10 +24,10 @@
         <x-overlay x-show="$popover.isShown"/>
     @endif
     <div x-cloak
-         x-transition
+         x-transition.opacity
          x-tooltip:content
             @class([
-               'z-20 absolute left-0 top-0 p-2 shadow-lg rounded-md border',
+               'z-20 absolute left-0 top-0 px-2 py-1 shadow-lg rounded-md border',
                match ($variant) {
                    'primary' => 'bg-primary-dark text-white border-primary',
                    'secondary' => 'bg-secondary-darker text-secondary-lighter border-secondary-dark',

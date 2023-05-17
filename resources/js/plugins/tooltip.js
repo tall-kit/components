@@ -38,11 +38,22 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
         'x-id'() {
             return ['tooltip-content']
         },
+        'x-effect'() {
+            if(this.__inInteractiveArea) {
+                document.addEventListener('mousemove', this.__interactiveEventListener);
+            } else {
+                document.removeEventListener('mousemove', this.__interactiveEventListener);
+            }
+        },
         'x-data'() {
             return {
                 __delayInterval: null,
                 __durationInterval: null,
-                __interactive: options.interactive,
+                __inInteractiveArea: false,
+                __interactiveEventListener (mouse) {
+                    const $data = Alpine.$data(el);
+                    if(!$data.__handleInteractiveArea(mouse)) $data.__hideAndHandleDelay();
+                },
                 __showAndHandleDelay() {
                     this.__delayInterval = setTimeout(() => {
                         this.__show();
@@ -52,37 +63,48 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
                     clearInterval(this.__delayInterval);
                     this.__hide();
                 },
-                __closestEdge(mouse, targetEl) {
-                    const elClientRect = targetEl.getBoundingClientRect();
+                __handleInteractiveArea(mouse) {
+                    if(!options.interactive) return false;
 
-                    const elLeftEdge = elClientRect.left;
-                    const elTopEdge = elClientRect.top;
-                    const elRightEdge = elClientRect.right;
-                    const elBottomEdge = elClientRect.bottom;
+                    const mouseX = mouse.clientX;
+                    const mouseY = mouse.clientY;
+                    const referenceElRect = this.__referenceEl.getBoundingClientRect();
+                    const floatingElRect = this.__floatingEl.getBoundingClientRect();
 
-                    const mouseX = mouse.pageX;
-                    const mouseY = mouse.pageY;
+                    // build interactive area box for different placements
 
-                    const topEdgeDist = Math.abs(elTopEdge - mouseY);
-                    const bottomEdgeDist = Math.abs(elBottomEdge - mouseY);
-                    const leftEdgeDist = Math.abs(elLeftEdge - mouseX);
-                    const rightEdgeDist = Math.abs(elRightEdge - mouseX);
+                    // default position top
+                    let borderLeft = Math.min(floatingElRect.left, referenceElRect.left)
+                    let borderRight = Math.max(floatingElRect.right, referenceElRect.right)
+                    let borderTop = floatingElRect.top;
+                    let borderBottom = referenceElRect.bottom;
 
-                    const minDist = Math.min(topEdgeDist, bottomEdgeDist, leftEdgeDist, rightEdgeDist);
-
-                    switch (minDist) {
-                        case leftEdgeDist:
-                            return 'left';
-                        case rightEdgeDist:
-                            return 'right';
-                        case topEdgeDist:
-                            return 'top';
-                        case bottomEdgeDist:
-                            return 'bottom';
+                    switch (this.__placementSide) {
+                        case 'bottom':
+                            borderTop = referenceElRect.top;
+                            borderBottom = floatingElRect.bottom;
+                            break;
+                        case 'left':
+                            borderLeft = floatingElRect.left;
+                            borderRight = referenceElRect.right;
+                            borderTop = Math.min(floatingElRect.top, referenceElRect.top);
+                            borderBottom = Math.min(floatingElRect.bottom, referenceElRect.bottom);
+                            break;
+                        case 'right':
+                            borderLeft = referenceElRect.left;
+                            borderRight = floatingElRect.right;
+                            borderTop = Math.min(floatingElRect.top, referenceElRect.top);
+                            borderBottom = Math.min(floatingElRect.bottom, referenceElRect.bottom);
+                            break;
                     }
+
+                    // check if mouse pointer is in interactive area box
+                    const betweenVertical = mouseY >= borderTop && mouseY <= borderBottom;
+                    const betweenHorizontal = mouseX >= borderLeft && mouseX <= borderRight;
+                    return this.__inInteractiveArea = betweenVertical && betweenHorizontal;
                 }
             }
-        },
+        }
     });
 }
 
@@ -103,18 +125,7 @@ function handleTrigger(el, Alpine) {
         },
         'x-on:mouseleave'(mouse) {
             // handle interactive tooltip
-            if(this.$data.__interactive) {
-                // placement side of tooltip
-                const placementSide = this.$data.__placementSide;
-
-                // leaving side of mouse
-                const mouseLeavingSide = this.$data.__closestEdge(mouse, el);
-
-                // check if mouse leaving from trigger to tooltip
-                if(placementSide === mouseLeavingSide) {
-                    return;
-                }
-            }
+            if (this.$data.__handleInteractiveArea(mouse)) return;
 
             this.$data.__hideAndHandleDelay();
         },
@@ -136,30 +147,5 @@ function handleContent(el, Alpine) {
         'x-bind:id'() {
             return this.$id('tooltip-content')
         },
-        'x-on:click.away'() {
-            this.$data.__interactive && this.$data.__hide()
-        },
-        'x-on:mouseleave'(mouse) {
-            // handle interactive tooltip
-            if(this.$data.__interactive) {
-                // placement side of tooltip
-                const placementSide = this.$data.__placementSide;
-
-                // leaving side of mouse
-                const mouseLeavingSide = this.$data.__closestEdge(mouse, el);
-                const reversedDirection = {
-                    'bottom': 'top',
-                    'top': 'bottom',
-                    'left': 'right',
-                    'right': 'left',
-                }[placementSide] ?? null;
-
-                // check if mouse leaving from tooltip to trigger
-                if(reversedDirection === mouseLeavingSide) {
-                    return;
-                }
-            }
-            this.$data.__hideAndHandleDelay()
-        }
     });
 }
