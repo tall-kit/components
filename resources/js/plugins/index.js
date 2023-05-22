@@ -3,6 +3,7 @@ import tooltip from "./tooltip";
 import popover from "./popover";
 import slider from "./slider";
 import toggle from "./toggle";
+import menu from "./menu";
 
 export default function (Alpine) {
     floating(Alpine)
@@ -10,4 +11,5 @@ export default function (Alpine) {
     tooltip(Alpine)
     slider(Alpine)
     toggle(Alpine)
+    menu(Alpine)
 }

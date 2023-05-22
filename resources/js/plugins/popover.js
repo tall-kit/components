@@ -1,7 +1,7 @@
 
 export default function (Alpine) {
-    Alpine.directive('popover', (el, {value, expression}, {evaluate, cleanup}) => {
-        if (!value) handleRoot(el, expression, evaluate, cleanup, Alpine);
+    Alpine.directive('popover', (el, {value, expression}, {evaluate}) => {
+        if (!value) handleRoot(el, expression, evaluate, Alpine);
         else if (value === 'trigger') handleTrigger(el, Alpine);
         else if (value === 'content') handleContent(el, Alpine);
     }).before('bind');
@@ -20,7 +20,7 @@ export default function (Alpine) {
     });
 }
 
-function handleRoot(el, expression, evaluate, cleanup, Alpine) {
+function handleRoot(el, expression, evaluate, Alpine) {
     let options = {
         placement: 'top',
         offset: 12,

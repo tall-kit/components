@@ -17,5 +17,9 @@
                 "TallKit\\Components\\TallKitComponentsServiceProvider"
             ]
         }
+    },
+    "require": {
+        "blade-ui-kit/blade-icons": "1.x-dev",
+        "blade-ui-kit/blade-heroicons": "dev-main"
     }
 }
