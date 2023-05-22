@@ -50,6 +50,10 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
                 },
                 __update() {
                     let floatingReference = this.__referenceEl ?? el;
+                    if(floatingReference.offsetParent === null) {
+                        this.$dispatch('floating-disappear');
+                        return;
+                    }
                     if (!floatingReference || !this.__floatingEl) return;
 
                     computePosition(floatingReference, this.__floatingEl, {
@@ -107,10 +111,12 @@ function handleRoot(el, expression, evaluate, cleanup, Alpine) {
                     this.__autoupdateCleanup = autoUpdate(floatingReference, this.__floatingEl, () => {
                         this.__update();
                     });
+                    this.$dispatch('floating-show');
                 },
                 __hide() {
                     this.__handleAutoupdateCleanup();
                     this.__isShown = false;
+                    this.$dispatch('floating-hide');
                 },
                 __handleAutoupdateCleanup() {
                     if (typeof this.__autoupdateCleanup === 'function') this.__autoupdateCleanup();

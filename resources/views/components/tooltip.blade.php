@@ -7,7 +7,7 @@
     'shift' => true,
     'overlay' => false,
     'interactive' => false,
-    'variant' => 'light'
+    'color' => 'neutral'
 ])
 <div x-tooltip="{
         delay: {{$delay}},
@@ -28,20 +28,21 @@
          x-tooltip:content
             @class([
                'z-20 absolute left-0 top-0 px-2 py-1 shadow-lg rounded-md border',
-               match ($variant) {
-                   'primary' => 'bg-primary-dark text-white border-primary',
-                   'secondary' => 'bg-secondary-darker text-secondary-lighter border-secondary-dark',
-                   'destructive' => 'bg-destructive-lighter text-destructive-darker border-destructive-light',
-                   default => 'bg-white border-slate-300',
-               }
+               match ($color) {
+                    'primary' => 'bg-primary-dark text-white border-primary',
+                    'secondary' => 'bg-secondary-darker text-secondary-lighter border-secondary-dark',
+                    'success' => 'bg-success-lighter text-success-dark border-success-light',
+                    'warning' => 'bg-warning-lighter text-warning-dark border-warning-light',
+                    'error' => 'bg-error-lighter text-error-dark border-error-light',
+                    default => 'bg-white text-neutral-darker border-neutral-light',
+               },
            ])
     >
-        <div {{$content->attributes}}>
-            {{$content}}
-        </div>
-
         @if($arrow)
             <x-floating-arrow/>
         @endif
+        <div {{$content->attributes->class('relative')}}>
+            {{$content}}
+        </div>
     </div>
 </div>
