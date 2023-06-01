@@ -346,7 +346,7 @@ function handleDropdown(el, expression, evaluate, Alpine) {
                 __hideAndHandleFocus() {
                     this.$data.__hide();
                     this.$nextTick(() => {
-                        this.__triggerEl.focus();
+                        this.__triggerEl.focus({preventScroll: true});
                     });
                 },
                 __toggle() {
