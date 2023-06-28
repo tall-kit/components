@@ -137,16 +137,14 @@ function handleArrow(el, Alpine) {
 function handleContent(el, Alpine) {
     Alpine.bind(el, {
         'x-init'() {
-            this.__floatingEl = el;
-        },
-        'x-bind:style'() {
-            return {
-                display: this.$data.__isShown ? 'block' : '',
-            };
+            this.$data.__floatingEl = el;
         },
         'x-show'() {
             return this.$data.__isShown;
         },
+        'x-effect'() {
+            this.$data.__floatingEl.style.display = this.$data.__isShown ? 'block' : 'none';
+        }
     });
 }
 
