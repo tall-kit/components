@@ -1,5 +1,5 @@
 @props(['data'])
-<div x-listbox:option="@js($data)"
+<div x-listbox:option="{{json_encode($data)}}"
      x-bind:class="{
         'bg-neutral-lighter': $listboxOption.isActive,
         'opacity-50': $listboxOption.isDisabled,
