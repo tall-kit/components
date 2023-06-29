@@ -1,7 +1,7 @@
 @aware(['color' => 'neutral'])
 @props(['orientation' => 'horizontal'])
 <div aria-hidden="true" {{$attributes->class([
-        'my-2 flex-shrink-0 bg-border',
+        'my-1 flex-shrink-0 bg-border',
         'h-px w-full' => $orientation === 'horizontal',
         'w-px h-full' => $orientation === 'vertical',
         match ($color) {
