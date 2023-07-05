@@ -28,7 +28,8 @@
   "homepage": "https://github.com/tall-kit/components#readme",
   "devDependencies": {
     "brotli-size": "^4.0.0",
-    "esbuild": "~0.16.17"
+    "esbuild": "~0.16.17",
+    "tailwindcss": "^3.3.2"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.2.6"

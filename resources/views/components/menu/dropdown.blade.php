@@ -5,7 +5,8 @@
     'flip' => true,
     'shift' => true,
     'overlay' => false,
-    'color' => 'neutral'
+    'color' => 'neutral',
+    'variant' => 'soft'
 ])
 <div x-menu:dropdown="{
         offset: {{$offset}},
@@ -22,17 +23,7 @@
         <div x-cloak
              x-transition.opacity
              x-menu:content
-             @class([
-                'z-20 absolute left-0 top-0 py-1 shadow-lg rounded-md border w-56 focus:outline-none',
-                match ($color) {
-                   'primary' => 'bg-primary-dark text-white border-primary',
-                   'secondary' => 'bg-secondary-darker text-secondary-lighter border-secondary-dark',
-                   'success' => 'bg-success-lighter text-success-dark border-success-light',
-                   'warning' => 'bg-warning-lighter text-warning-dark border-warning-light',
-                   'error' => 'bg-error-lighter text-error-dark border-error-light',
-                   default => 'bg-white text-neutral-darker border-neutral-light',
-                },
-            ])
+            class="component-outline-neutral bg-[var(--background)] text-[color:var(--foreground)] border-[var(--floating-border)] z-20 absolute outline-none left-0 top-0 py-1 shadow-lg rounded-md border w-56"
         >
             @if($arrow)
                 <x-floating-arrow/>

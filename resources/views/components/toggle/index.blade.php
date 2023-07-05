@@ -1,40 +1,16 @@
 @props([
     'size' => 'md',
-    'color' => 'primary'
+    'color' => 'primary',
 ])
-@php
-    $activeColor = match ($color) {
-        'primary' => 'bg-primary',
-        'secondary' => 'bg-secondary',
-        'neutral' => 'bg-neutral',
-        'success' => 'bg-success',
-        'warning' => 'bg-warning',
-        'error' => 'bg-error',
-    }
-@endphp
 <button x-toggle
         x-bind:class="{
-            'bg-slate-200': !$toggle.isChecked,
-            @js($activeColor): $toggle.isChecked,
+            'bg-neutral-light': !$toggle.isChecked,
+            'bg-[var(--background)]': $toggle.isChecked,
             'opacity-50': $toggle.isDisabled
         }"
-        x-bind:class="$toggle.isChecked ? @js($activeColor) : 'bg-slate-300'"
-        @if($attributes->wire('model')->value)
-            x-data="{
-                value: @entangle($attributes->wire('model'))
-            }"
-            x-model="value"
-        @endif
         {{$attributes->whereDoesntStartWith('wire:model')->class([
-            'relative inline-flex flex-shrink-0 rounded-full transition border-transparent focus:outline-none focus:ring-offset-0 focus:ring-4',
-            match ($color) {
-                'primary' => 'focus:ring-primary-light',
-                'secondary' => 'focus:ring-secondary-light',
-                'neutral' => 'focus:ring-neutral-light',
-                'success' => 'focus:ring-success-light',
-                'warning' => 'focus:ring-warning-light',
-                'error' => 'focus:ring-error-light',
-            },
+            'relative inline-flex flex-shrink-0 rounded-full transition border-transparent outline-none',
+            "component-fill-{$color} focus:outline-[color:var(--outline)] focus:outline-[length:var(--outline-width)] outline-offset-[var(--outline-offset)] ",
             match ($size) {
                 'sm' => 'h-5 w-9 border-2',
                 'md' => 'h-6 w-11 border-2',
