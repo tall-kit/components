@@ -3,8 +3,8 @@
     type="radio"
     @isset($id) id="{{$id}}" @endisset
     {{$attributes->class([
-        'h-4 w-4 transition border-slate-300',
-        'text-primary focus:border-primary focus:ring focus:ring-offset-0 focus:ring-primary-light' => $error === null || !$errors->has($error),
-        'border-error text-error-dark placeholder-error-light focus:outline-none focus:ring-error focus:border-error' => $error && $errors->has($error)
+        'component-outline-neutral shadow-sm h-4 w-4 border transition outline-none',
+        'text-[color:var(--radio-foreground)] border-[var(--border)]',
+        'focus:ring-transparent focus:border-[var(--input-border-focus)] focus:outline-[color:var(--outline)] focus:outline-[length:var(--outline-width)] focus:outline-offset-[var(--outline-offset)]',
     ])}}
 >

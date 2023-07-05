@@ -1,5 +1,4 @@
-@aware(['color' => 'neutral'])
-@props(['orientation' => 'horizontal'])
+@props(['orientation' => 'horizontal', 'color' => 'neutral'])
 <div aria-hidden="true" {{$attributes->class([
         'my-1 flex-shrink-0 bg-border',
         'h-px w-full' => $orientation === 'horizontal',
