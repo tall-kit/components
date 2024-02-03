@@ -2,25 +2,41 @@
     'variant' => 'fill',
     'color' => 'primary',
     'size' => 'md',
-    'href' => null
+    'href' => null,
+    'icon' => null,
+    'leadingIcon' => null,
+    'trailingIcon' => null,
 ])
 @php
     $defaults = $href ? ['href' => $href] : ['type' => 'button'];
     $defaults['x-data'] = false;
     $tag = $href ? 'a' : 'button';
+    $iconSize = match ($size) {
+        'sm' => 'size-4',
+        'lg' => 'size-6',
+        'xl' => 'size-8',
+        default => 'size-5',
+    };
+    $leadingIcon ??= $icon;
 @endphp
 <{{$tag}} {{$attributes
             ->merge($defaults)
             ->class([
-                'group inline-flex items-center justify-center border font-medium transition outline-none disabled:opacity-75',
-                "component-{$variant}-{$color} size-{$size} rounded-[var(--btn-rounded)] bg-[var(--background)] p-[var(--padding)] border-[var(--border)] leading-[var(--leading)] text-[color:var(--foreground)] text-[length:var(--font-size)] outline-offset-[var(--outline-offset)]",
-                'focus-visible:border-[var(--border-focus)] focus-visible:outline-[color:var(--outline)] focus-visible:outline-[length:var(--outline-width)]',
-                'hover:bg-[var(--background-hover)]',
+                'group inline-flex cursor-default items-center justify-center border font-medium transition outline-none disabled:opacity-75 gap-1.5',
+                "component-{$variant}-{$color} size-{$size} rounded-[--btn-rounded] bg-[--background] p-[--padding] border-[--border] leading-[--leading] text-[color:--foreground] text-[length:--font-size] outline-offset-[--outline-offset]",
+                'focus-visible:border-[--border-focus] focus-visible:outline-[color:--outline] focus-visible:outline-[length:--outline-width]',
+                'hover:bg-[--background-hover]',
                 match ($variant) {
                     'fill', 'outline' => 'shadow-sm',
-                    'link' => 'hover:underline',
+                    'link' => 'cursor-pointer hover:underline',
                     default => null
                 }
             ])}}>
+@if($leadingIcon)
+    <x-icon :name="$leadingIcon" aria-hidden="true" class="{{$iconSize}} {{$slot->isEmpty() ? '-mx-1' : '-ml-1'}}"/>
+@endif
 {{$slot}}
+@if($trailingIcon)
+    <x-icon :name="$trailingIcon" aria-hidden="true" class="{{$iconSize}} {{$slot->isEmpty() ? '-mx-1' : '-mr-1'}}"/>
+@endif
 </{{$tag}}>

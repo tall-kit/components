@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require("tailwindcss/colors");
-const plugin = require('tailwindcss/plugin')
+const plugin = require('tailwindcss/plugin');
 
 const themeColors = [
     'primary',
@@ -39,6 +39,7 @@ const theme = plugin.withOptions(function (options = {}) {
                 '--floating-border': 'var(--border)',
 
                 // input
+                '--input-placeholder': theme('colors.neutral.DEFAULT'),
                 '--input-border-focus': theme('colors.primary.DEFAULT'),
 
                 // checkbox
@@ -52,6 +53,12 @@ const theme = plugin.withOptions(function (options = {}) {
                 '--font-size': '.875rem',
                 '--leading': '1.25rem',
             },
+            // error state
+            '.component-outline-error': {
+                '--input-placeholder': theme('colors.error.DEFAULT'),
+                '--input-border-focus': theme('colors.error.DEFAULT'),
+                '--outline': 'theme(colors.error.DEFAULT / 30%)',
+            }
         })
 
         themeColors.forEach((color) => {
@@ -62,6 +69,8 @@ const theme = plugin.withOptions(function (options = {}) {
                     '--foreground': theme('colors.white'),
                     '--border': 'transparent',
                     '--border-focus': 'transparent',
+
+                    '--thumb-border': theme(`colors.${color}.dark`),
 
                     '--floating-border': theme(`colors.${color}.DEFAULT`)
                 },
@@ -173,7 +182,7 @@ const theme = plugin.withOptions(function (options = {}) {
                     error: {
                         lightest: colors.red[100],
                         light: colors.red[200],
-                        DEFAULT: colors.red[500],
+                        DEFAULT: colors.red[400],
                         dark: colors.red[600],
                         darkest: colors.red[600],
                     },

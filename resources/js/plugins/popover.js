@@ -1,75 +1,81 @@
+import { overlayHandler } from "../utils/overlayHandler.js";
 
 export default function (Alpine) {
-    Alpine.directive('popover', (el, {value, expression}, {evaluate}) => {
-        if (!value) handleRoot(el, expression, evaluate, Alpine);
-        else if (value === 'trigger') handleTrigger(el, Alpine);
-        else if (value === 'content') handleContent(el, Alpine);
-    }).before('bind');
+    Alpine.directive('popover', Alpine.skipDuringClone((el, {value, expression}, {evaluate, cleanup}) => {
+        if(value === null) handlePopover(el, evaluate(expression || '{}'), cleanup, Alpine);
+        else if(value === 'trigger') handlePopoverTrigger(el, evaluate(expression || '[]'), Alpine);
+        // else if(value === 'reference') handleTooltipReference(el, Alpine);
+        // else if(value === 'arrow') handleTooltipArrow(el, Alpine);
+    })).before('bind');
 
     Alpine.magic('popover', el => {
         const $data = Alpine.$data(el);
+
         return {
-            ...$data.$floating,
-            showAndFocus() {
-                $data.__showAndHandleFocus();
-            },
-            hideAndFocus() {
-                $data.__hideAndHandleFocus();
-            },
+            toggle() {
+                const run = () => {
+                    if(!$data.target) return;
+                    Alpine.$data($data.target).toggle();
+
+                };
+                $data.target ? run() : $data.$nextTick(run);
+            }
+            // hide() {
+            //     if(!$data.target) return;
+            //     Alpine.$data($data.target).hide();
+            // },
+            // get placementSide() {
+            //     if(!$data.target) return 'top';
+            //     return Alpine.$data($data.target).placementSide;
+            // }
         }
     });
 }
 
-function handleRoot(el, expression, evaluate, Alpine) {
-    let options = {
-        placement: 'top',
-        offset: 12,
+function handlePopover(el, options, cleanup, Alpine) {
+    const popoverOptions = {
+        placement: 'bottom',
+        offset: 6,
         flip: true,
         shift: true,
+        ...options
     };
-    if (expression) {
-        Object.assign(options, evaluate(expression))
-    }
+
+    Alpine.$data(el).target = el;
 
     Alpine.bind(el, {
-        'x-floating'() {
-            return options;
-        },
-        'x-id'() {
-            return ['popover-content']
+        'x-init'() {
+            cleanup(() => this._handler.cleanup());
         },
         'x-data'() {
             return {
-                __triggerEl: null,
-                __showAndHandleFocus() {
-                    this.__show();
-                    this.$nextTick(() => {
-                        let firstFocusable = this.$focus.within(this.__floatingEl).getFirst();
-                        if(firstFocusable) this.$focus.focus(firstFocusable);
-                    });
-                },
-                __hideAndHandleFocus() {
-                    this.__hide();
-
-                    // focus trigger element if no other element outside of popover has already been focused by user
-                    if(!document.hasFocus() || this.$focus.within(this.__floatingEl).focused()) {
-                        this.$nextTick(() => {
-                            this.$focus.focus(this.__triggerEl);
-                        });
-                    }
-                },
+                _handler: overlayHandler(el, popoverOptions),
+                toggle() {
+                    this._handler.toggle(this.$data.trigger);
+                }
             }
-        }
+        },
+        'x-bind:style'()  {
+            return this._handler.styles
+        },
     });
 }
 
-function handleTrigger(el, Alpine) {
+function handlePopoverTrigger(el, triggers, Alpine) {
     Alpine.bind(el, {
-        'x-floating:reference'() {
-            //
-        },
-        'x-init'() {
-            this.__triggerEl = el;
+        'x-data'() {
+            return {
+                get target() {
+                    return this._targetEl;
+                },
+                set target(el) {
+                    this._targetEl = el;
+                },
+                get trigger() {
+                    return el;
+                },
+                _targetEl: null,
+            }
         },
         'x-bind:aria-expanded'() {
             return this.$data.__isShown;
@@ -79,33 +85,10 @@ function handleTrigger(el, Alpine) {
         },
 
         'x-on:click'() {
-            this.$data.__isShown ? this.$data.__hideAndHandleFocus() : this.$data.__showAndHandleFocus();
+            triggers.includes('click') && this.$popover.toggle();
         },
         'x-on:keydown.escape.stop.prevent'() {
             this.$data.__hide();
-        },
-    });
-}
-
-function handleContent(el, Alpine) {
-    Alpine.bind(el, {
-        'role': 'dialog',
-
-        'tabindex': '-1',
-
-        'x-floating:content'() {
-            //
-        },
-
-        'x-bind:id'() {
-            return this.$id('popover-content')
-        },
-
-        'x-on:click.outside'() {
-            this.$data.__hide();
-        },
-        'x-on:keydown.escape.stop.prevent'() {
-            this.$data.__hideAndHandleFocus();
         },
     });
 }

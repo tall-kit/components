@@ -1,9 +1,10 @@
 @aware(['id', 'error'])
 @props(['options', 'button', 'size' => 'md', 'color' => 'neutral', 'variant' => 'soft', 'multiple' => false])
 <div x-listbox:dropdown
+     wire:ignore
     {{$attributes
         ->whereDoesntStartWith(['x-model', 'wire:model'])
-        ->class('relative w-full')}}
+        ->class('relative w-full h-fit')}}
 >
     <button type="button"
             x-listbox:trigger
@@ -26,14 +27,8 @@
         x-listbox
         x-cloak
         @if($multiple) multiple-options @endif
-        class="z-20 absolute left-0 top-0 shadow-lg rounded-md overflow-hidden border w-full p-0 outline-none outline-none bg-white text-neutral-darker border-neutral-light"
-        {{$attributes->whereStartsWith(['x-model'])}}
-        @if($attributes->wire('model')->value)
-            x-data="{
-                value: @entangle($attributes->wire('model'))
-            }"
-            x-model="value"
-        @endif
+        class="z-20 absolute left-0 top-0 shadow-lg rounded-md overflow-hidden border w-full p-0 outline-none bg-white text-neutral-darker border-neutral-light"
+        {{$attributes->whereStartsWith(['x-model', 'wire:model'])}}
     >
         <div x-listbox:options class="overflow-auto my-1 max-h-56">
             {{$options}}

@@ -1,8 +1,10 @@
+@aware(['disabled'])
 @props([
     'size' => 'md',
     'hasError' => $errors->has($attributes->wire('model')->value()),
     'leadingIcon' => null,
-    'trailingIcon' => null,
+    'trailingIcon' => 'heroicon-o-chevron-up-down',
+    'disabled' => false,
 ])
 @php
     [$iconSize, $leadingIconPadding, $trailingIconPadding] = match ($size) {
@@ -19,12 +21,13 @@
                     class="text-[--input-placeholder] {{$iconSize}}"/>
         </span>
     @endif
-    <input x-input
-           invalid="@js($hasError)"
-            {{$attributes->merge(['type' => 'text'])->class([
+    <select x-input
+            invalid="@js($hasError)"
+            @disabled($disabled)
+            {{$attributes->class([
                 'component-outline-neutral' => !$hasError,
                 'component-outline-error' => $hasError,
-                'shadow-sm block w-full border transition outline-none',
+                'shadow-sm block w-full border transition outline-none bg-none',
                 'bg-[--background] rounded-[--rounded] border-[--border] placeholder:text-[color:--input-placeholder]',
                 "size-{$size} p-[--padding] leading-[--leading] text-[color:--foreground] text-[length:--font-size]",
                 'focus:ring-transparent focus:border-[--input-border-focus] focus:outline-[color:--outline] focus:outline-[length:--outline-width] focus:outline-offset-[--outline-offset]',
@@ -32,6 +35,8 @@
                 $trailingIconPadding => $trailingIcon,
             ])}}
     >
+        {{$slot}}
+    </select>
     @if($trailingIcon)
         <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <x-icon :name="$trailingIcon" aria-hidden="true"

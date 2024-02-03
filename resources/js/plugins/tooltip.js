@@ -1,151 +1,245 @@
+import { computePosition, flip, shift, offset, arrow, autoUpdate } from "@floating-ui/dom";
+import { animate, easeInOut } from "popmotion"
+import { animationHandler } from "../utils/animationHandler.js";
+
 export default function (Alpine) {
-    Alpine.directive('tooltip', (el, {value, expression}, {evaluate, cleanup}) => {
-        if (!value) handleRoot(el, expression, evaluate, cleanup, Alpine);
-        else if (value === 'trigger') handleTrigger(el, Alpine);
-        else if (value === 'content') handleContent(el, Alpine);
-    }).before('bind');
+    const activeTooltips = new Map();
+
+    Alpine.directive('tooltip', Alpine.skipDuringClone((el, {value, expression}, {evaluate, cleanup}) => {
+        if(value === null) handleTooltip(el, evaluate(expression || '{}'), cleanup, Alpine, activeTooltips);
+        else if(value === 'trigger') handleTooltipTrigger(el, evaluate(expression || '{}'), Alpine);
+        else if(value === 'reference') handleTooltipReference(el, Alpine);
+        else if(value === 'arrow') handleTooltipArrow(el, Alpine);
+    })).before('bind');
 
     Alpine.magic('tooltip', el => {
         const $data = Alpine.$data(el);
-        return {
-            ...$data.$floating,
-            showForDuration(duration) {
-                $data.__show();
 
-                if (duration) {
-                    clearInterval($data.__durationInterval);
-                    $data.__durationInterval = setTimeout(() => {
-                        $data.__hide();
-                    }, duration);
-                }
+        return {
+            show(duration) {
+                const run = () => {
+                    if(!$data.target) return;
+                    Alpine.$data($data.target).show($data.trigger, duration);
+                };
+                if(!$data.target) $data.$nextTick(run);
+                run();
             },
+            hide() {
+                if(!$data.target) return;
+                Alpine.$data($data.target).hide();
+            },
+            get placementSide() {
+                if(!$data.target) return 'top';
+                return Alpine.$data($data.target).placementSide;
+            }
         }
     });
 }
 
-function handleRoot(el, expression, evaluate, cleanup, Alpine) {
-    let options = {
-        interactive: false
+function handleTooltipArrow(el, Alpine) {
+    Alpine.bind(el, {
+        'x-init'() {
+            this.$data._arrowEl = el;
+        }
+    });
+}
+
+function handleTooltipReference(el, Alpine) {
+    Alpine.bind(el, {
+        'x-init'() {
+            this.$data._referenceEl = el;
+        }
+    });
+}
+
+function handleTooltip(el, options, cleanup, Alpine, activeTooltips) {
+    const tooltipOptions = {
+        placement: 'top',
+        offset: 6,
+        flip: true,
+        shift: true,
+        ...options
     };
-    if (expression) {
-        Object.assign(options, evaluate(expression))
-    }
+
+    Alpine.$data(el).target = el;
+
+    const animationDuration = 100;
 
     Alpine.bind(el, {
-        'x-floating'() {
-            return options;
-        },
-        'x-id'() {
-            return ['tooltip-content']
-        },
-        'x-effect'() {
-            if(this.__inInteractiveArea) {
-                document.addEventListener('mousemove', this.__interactiveEventListener);
-            } else {
-                document.removeEventListener('mousemove', this.__interactiveEventListener);
+        'role': 'tooltip',
+        'x-data'() {
+            return {
+                show(triggerEl, duration) {
+                    // show for specific duration in ms
+                    if(duration) {
+                        clearInterval(this._durationInterval);
+                        this._durationInterval = setInterval(() => {
+                            this.hide();
+                        }, duration)
+                    }
+                    if(this._show) return this._animationHandler.clearPendingActions();
+                    this._show = true
+
+                    activeTooltips.set(el, this._show);
+                    this._animationHandler.start();
+
+                    this._opacity = 0;
+
+                    // init position
+                    const options = {
+                        placement: tooltipOptions.placement,
+                        middleware: [
+                            offset(tooltipOptions.offset),
+                            tooltipOptions.flip && flip(),
+                            tooltipOptions.shift && shift({ padding: 5 }),
+                            this._arrowEl && arrow({ element: this._arrowEl }),
+                        ],
+                    };
+
+                    const runCompute = () => {
+                        computePosition(triggerEl, el, options).then(({x, y, placement, middlewareData}) => {
+                            this._placementSide = placement.split('-')[0];
+                            Object.assign(el.style, {
+                                left: `${x}px`,
+                                top: `${y}px`,
+                            });
+
+                            // handle arrow position
+                            if (this._arrowEl) {
+                                const {x: arrowX, y: arrowY} = middlewareData.arrow;
+
+                                const staticSide = {
+                                    top: 'bottom',
+                                    right: 'left',
+                                    bottom: 'top',
+                                    left: 'right',
+                                }[placement.split('-')[0]];
+
+                                Object.assign(this._arrowEl.style, {
+                                    left: arrowX != null ? `${arrowX}px` : '',
+                                    top: arrowY != null ? `${arrowY}px` : '',
+                                    right: '',
+                                    bottom: '',
+                                    [staticSide]: '0px',
+                                });
+                            }
+                        });
+                    };
+
+                    this._autoUpdateHandler = autoUpdate(triggerEl, el, () => runCompute())
+
+                    animate({
+                        from: {
+                            opacity: 0,
+                            translateY: {
+                                'top': 10,
+                                'bottom': -10,
+                            }[this._placementSide] || 0,
+                            translateX: {
+                                'right': -10,
+                                'left': 10,
+                            }[this._placementSide] || 0
+                        },
+                        to: {
+                            opacity: 1,
+                            translateY: 0,
+                            translateX: 0
+                        },
+                        ease: easeInOut,
+                        duration: animationDuration,
+                        onUpdate: (latest) => {
+                            this._opacity = latest.opacity;
+                            this._translateY = latest.translateY;
+                            this._translateX = latest.translateX;
+                        },
+                        onComplete: () => {
+                            this._animationHandler.release();
+                        }
+                    });
+
+                    cleanup(() => this._releaseAutoUpdateHandler());
+                },
+                hide() {
+                    this.$nextTick(() => {
+                        this._animationHandler.afterRelease(() => {
+                            this._show = false;
+                            this._releaseAutoUpdateHandler();
+                        });
+                    })
+                },
+                get placementSide() {
+                   return this._placementSide;
+                },
+                _show: false,
+                _opacity: 0,
+                _translateY: 0,
+                _translateX: 0,
+                _arrowEl: null,
+                _placementSide: 'top',
+                _autoUpdateHandler: null,
+                _animationHandler: animationHandler(),
+                _durationInterval: null,
+                _releaseAutoUpdateHandler() {
+                    typeof this._autoUpdateHandler === 'function' && this._autoUpdateHandler();
+                }
             }
+        },
+        'x-bind:style'()  {
+            return {
+                display: this._show ? 'block' : 'none',
+                opacity: this._opacity,
+                transform: `translate(${this._translateX}px, ${this._translateY}px)`,
+                pointerEvents: this._animationHandler.isBusy ? 'none': 'auto'
+            }
+        },
+        'x-bind:id'() {
+            return this.$id('tooltip')
+        },
+    });
+}
+
+function handleTooltipTrigger(el, options, Alpine) {
+    const triggerOptions = {
+        hover: true,
+        focus: true,
+        ...options
+    };
+    Alpine.bind(el, {
+        'x-id'() {
+            return ['tooltip']
         },
         'x-data'() {
             return {
-                __delayInterval: null,
-                __durationInterval: null,
-                __inInteractiveArea: false,
-                __interactiveEventListener (mouse) {
-                    const $data = Alpine.$data(el);
-                    if(!$data.__handleInteractiveArea(mouse)) $data.__hideAndHandleDelay();
+                get target() {
+                    return this._targetEl;
                 },
-                __showAndHandleDelay() {
-                    this.__delayInterval = setTimeout(() => {
-                        this.__show();
-                    }, options.delay);
+                set target(el) {
+                    this._targetEl = el;
                 },
-                __hideAndHandleDelay() {
-                    clearInterval(this.__delayInterval);
-                    this.__hide();
+                get trigger() {
+                    return this._referenceEl || el;
                 },
-                __handleInteractiveArea(mouse) {
-                    if(!options.interactive) return false;
-
-                    const mouseX = mouse.clientX;
-                    const mouseY = mouse.clientY;
-                    const referenceElRect = this.__referenceEl.getBoundingClientRect();
-                    const floatingElRect = this.__floatingEl.getBoundingClientRect();
-
-                    // build interactive area box for different placements
-
-                    // default position top
-                    let borderLeft = Math.min(floatingElRect.left, referenceElRect.left)
-                    let borderRight = Math.max(floatingElRect.right, referenceElRect.right)
-                    let borderTop = floatingElRect.top;
-                    let borderBottom = referenceElRect.bottom;
-
-                    switch (this.__placementSide) {
-                        case 'bottom':
-                            borderTop = referenceElRect.top;
-                            borderBottom = floatingElRect.bottom;
-                            break;
-                        case 'left':
-                            borderLeft = floatingElRect.left;
-                            borderRight = referenceElRect.right;
-                            borderTop = Math.min(floatingElRect.top, referenceElRect.top);
-                            borderBottom = Math.min(floatingElRect.bottom, referenceElRect.bottom);
-                            break;
-                        case 'right':
-                            borderLeft = referenceElRect.left;
-                            borderRight = floatingElRect.right;
-                            borderTop = Math.min(floatingElRect.top, referenceElRect.top);
-                            borderBottom = Math.min(floatingElRect.bottom, referenceElRect.bottom);
-                            break;
-                    }
-
-                    // check if mouse pointer is in interactive area box
-                    const betweenVertical = mouseY >= borderTop && mouseY <= borderBottom;
-                    const betweenHorizontal = mouseX >= borderLeft && mouseX <= borderRight;
-                    return this.__inInteractiveArea = betweenVertical && betweenHorizontal;
-                }
+                _targetEl: null,
+                _referenceEl: null,
             }
-        }
-    });
-}
-
-function handleTrigger(el, Alpine) {
-    Alpine.bind(el, {
-        'x-floating:reference'() {
-            //
         },
         'x-bind:aria-describedby'() {
-            return this.$id('tooltip-content')
+            return this.$id('tooltip')
         },
-
         'x-on:mouseenter'() {
-            this.$data.__showAndHandleDelay();
+            triggerOptions.hover && this.$tooltip.show();
         },
-        'x-on:focus'() {
-            this.$data.__show();
+        'x-on:mouseleave'() {
+            triggerOptions.hover && this.$tooltip.hide();
         },
-        'x-on:mouseleave'(mouse) {
-            // handle interactive tooltip
-            if (this.$data.__handleInteractiveArea(mouse)) return;
-
-            this.$data.__hideAndHandleDelay();
+        'x-on:focusin'() {
+            triggerOptions.focus && this.$tooltip.show();
         },
-        'x-on:blur'() {
-            this.$data.__hideAndHandleDelay();
+        'x-on:focusout'() {
+            triggerOptions.focus && this.$tooltip.hide();
         },
         'x-on:keydown.escape.stop.prevent'() {
-            this.$data.__hideAndHandleDelay();
-        },
-    });
-}
-
-function handleContent(el, Alpine) {
-    Alpine.bind(el, {
-        'role': 'tooltip',
-        'x-floating:content'() {
-            //
-        },
-        'x-bind:id'() {
-            return this.$id('tooltip-content')
+            triggerOptions.focus && this.$tooltip.hide();
         },
     });
 }

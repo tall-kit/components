@@ -6,10 +6,10 @@
      {{$attributes->class([
         'animate-spin',
         match ($size) {
-            'xs' => 'h-3 w-3',
-            'md' => 'h-4 w-4',
-            'lg' => 'h-6 w-6',
-            'xl' => 'h-8 w-8',
+            'xs' => 'size-3',
+            'md' => 'size-4',
+            'lg' => 'size-6',
+            'xl' => 'size-8',
         },
     ])}}
 >

@@ -74,8 +74,8 @@ function handleTime(el, Alpine) {
                    queueMicrotask(() => {
                        this.__by = Alpine.bound(el, 'by', null);
                    });
-                   this.$nextTick(() => {
-                       this.__value = this.__timeValue;
+                   this.$watch('__timeValue', (value) => {
+                       this.__value = value;
                    })
                 },
                 __by: null,

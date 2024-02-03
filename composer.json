@@ -4,7 +4,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "TallKit\\Components\\": "src/"
+            "TallKit\\Componephp nts\\": "src/"
         }
     },
     "minimum-stability": "dev",
@@ -19,7 +19,7 @@
         }
     },
     "require": {
-        "blade-ui-kit/blade-icons": "1.x-dev",
-        "blade-ui-kit/blade-heroicons": "dev-main"
+        "blade-ui-kit/blade-icons": "^1.5.3",
+        "blade-ui-kit/blade-heroicons": "^2.2.1"
     }
 }

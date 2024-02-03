@@ -1,6 +1,6 @@
 export default function (Alpine) {
     Alpine.directive('slider', (el, directive) => {
-        if(!directive.value) handleRoot(el, Alpine)
+        if(!directive.value) handleSlider(el, Alpine)
         else if(directive.value === 'thumb') handleThumb(el, Alpine)
         else if(directive.value === 'range') handleRange(el, Alpine)
     }).before('bind');
@@ -16,7 +16,7 @@ export default function (Alpine) {
     });
 }
 
-function handleRoot(el, Alpine) {
+function handleSlider(el, Alpine) {
     Alpine.bind(el, {
         'x-data'() {
             return {
@@ -39,7 +39,7 @@ function handleRoot(el, Alpine) {
 
                     const trackPercentX = (this.$event.clientX - sliderRect.left) / (sliderRect.width / 100);
                     const multiplier = (trackPercentX - 50) / 100;
-                    // add multipler of thumb offset to current client click position
+                    // add multiplier of thumb offset to current client click position
                     const clientX = this.$event.clientX + multiplier * ( thumbEl ? thumbEl.getBoundingClientRect().width : 0 );
 
                     const trackPositionX = (clientX - sliderRect.left) / trackWidthPerPercent;

@@ -2,15 +2,15 @@
     'size' => 'md',
     'color' => 'primary',
 ])
-<button x-toggle
+<button x-switch
         x-bind:class="{
-            'bg-neutral-light': !$toggle.isChecked,
-            'bg-[var(--background)]': $toggle.isChecked,
-            'opacity-50': $toggle.isDisabled
+            'bg-neutral-light': !$switch.isChecked,
+            'bg-[--background]': $switch.isChecked,
+            'opacity-50': $switch.isDisabled
         }"
-        {{$attributes->whereDoesntStartWith('wire:model')->class([
-            'relative inline-flex flex-shrink-0 rounded-full transition border-transparent outline-none',
-            "component-fill-{$color} focus:outline-[color:var(--outline)] focus:outline-[length:var(--outline-width)] outline-offset-[var(--outline-offset)] ",
+        {{$attributes->class([
+            'relative inline-flex cursor-default flex-shrink-0 rounded-full transition border-transparent outline-none',
+            "component-fill-$color focus:outline-[color:--outline] focus:outline-[length:--outline-width] outline-offset-[--outline-offset]",
             match ($size) {
                 'sm' => 'h-5 w-9 border-2',
                 'md' => 'h-6 w-11 border-2',
@@ -20,7 +20,7 @@
 >
     <span
             aria-hidden="true"
-            x-bind:class="$toggle.isChecked ? 'translate-x-full' : 'translate-x-0'"
+            x-bind:class="$switch.isChecked ? 'translate-x-full' : 'translate-x-0'"
             @class([
                 'bg-white pointer-events-none rounded-full transition shadow-md',
                 match ($size) {
