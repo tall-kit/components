@@ -4,7 +4,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "TallKit\\Componephp nts\\": "src/"
+            "TallKit\\Components\\": "src/"
         }
     },
     "minimum-stability": "dev",
